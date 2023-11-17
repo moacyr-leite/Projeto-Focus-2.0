@@ -6,9 +6,32 @@ const textarea = document.querySelector(".app__form-textarea");
 const formCancelBtn = document.querySelector(
   ".app__form-footer__button--cancel"
 );
+const taskAtiveDescription = document.querySelector(
+  "app__section-active-task-description"
+);
 const localTarefas = localStorage.getItem("tarefas");
-let tarefas = localTarefas ? JSON.parse(localTarefas) : [];
 
+let tarefas = localTarefas ? JSON.parse(localTarefas) : [];
+let tarefaSelecionada = null;
+let itemTarefaSelecionada = null;
+
+const selecionaTarefa = (tarefa, elemento) => {
+  document
+    .querySelectorAll(".app__section-task-list-item-active")
+    .forEach(function (button) {
+      button.classList(remove("app__section-task-list-item-active"));
+    });
+  if (tarefaSelecionada == tarefa) {
+    taskAtiveDescription.textContent = null;
+    itemTarefaSelecionada = null;
+    tarefaSelecionada = null;
+    return;
+  }
+  tarefaSelecionada = tarefa;
+  itemTarefaSelecionada = elemento;
+  taskAtiveDescription.textContent = tarefa.descricao;
+  elemento.classList.add("app__section-task-list-item-active");
+};
 const taskIconSvg = `
 <svg class="app_section-task-icon-status" width="24" height="24" viewBox="0 0 24 24"
     fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,8 +41,13 @@ const taskIconSvg = `
         fill="#01080E" />
 </svg>
 `;
+button.classList.add("app_button-edit");
+const editIcon = document.createElement("img");
+editIcon.setAttribute("src", "/imagens/edit.png");
 
-function createTask(tarefas) {
+button.appendChild(editIcon);
+
+function createTask(tarefa) {
   const li = document.createElement("li");
   li.classList.add("app__section-task-list-item");
 
@@ -28,7 +56,24 @@ function createTask(tarefas) {
 
   const paragraph = document.createElement("p");
   paragraph.classList.add("app__section-task-list-item-description");
-  paragraph.textContent = tarefas.descricao;
+  paragraph.textContent = tarefa.descricao;
+
+  const button = document.createElement("button");
+
+  svgIcon.addEventListener("click", (event) => {
+    event.stopPropagation();
+    button.setAttribute("disabled", true);
+    li.classList.add("app__section-task-list-item-complete");
+  });
+
+  if (tarefa.concluida) {
+    button.setAttribute("disabled", true);
+    li.classList.add("app__section-task-list-item-complete");
+  }
+
+  li.onclick = () => {
+    selecionaTarefa(tarefa, li);
+  };
 
   li.appendChild(svgIcon);
   li.appendChild(paragraph);
